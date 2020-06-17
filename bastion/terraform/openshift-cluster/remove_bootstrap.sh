@@ -1,1 +1,0 @@
-terraform destroy -target=esxi_guest.openshift-bootstrap

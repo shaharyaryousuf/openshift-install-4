@@ -22,6 +22,8 @@ api-int		IN	A	192.168.67.1
 apps		IN	A	192.168.67.1
 *.apps		IN	A	192.168.67.1
 etcd-0		IN	A	192.168.67.10
+etcd-0          IN      A       192.168.67.11
+etcd-0          IN      A       192.168.67.12
 _etcd-server-ssl._tcp 	IN	SRV	0	10	2380	etcd-0.ocp67.perceptionit.int.
                         IN	SRV	0	10	2380	etcd-1.ocp67.perceptionit.int.
 			IN	SRV	0	10	2380	etcd-2.ocp67.perceptionit.int.

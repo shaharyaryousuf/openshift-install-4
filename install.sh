@@ -98,6 +98,7 @@ wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz
 gunzip go1.14.4.linux-amd64.tar.gz
 tar -xvf go1.14.4.linux-amd64.tar
 mv go /usr/local/
+source ~/.bashrc
 sleep 60
 mkdir $HOME/go
 export GOPATH="$HOME/go"
