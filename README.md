@@ -67,7 +67,7 @@ The bastion server is a CentOS 8 VM.
   
 It hosts the DNS server, DHCP server and load balancer for a 192.168.67.0 subnet that will be created with the Virtual Switch _vSwitchocp67_. It also hosts the TFTP and Matchbox servers to provision the OpenShift VMs. It also serves as gateway and router to the internet for the 192.168.67.0 subnet.  
   
-To apply this solution to your environment, just replace all occurences of the hostname of our VMware lab server _i8c-lab-02.iconos.be_ to the name of your VMware lab server.  
+To apply this solution to your environment, just replace all occurences of the hostname of our VMware lab server _perceptionit.int_ to the name of your VMware lab server.  
   
 # Configuration and Installation
 ## VMware ESXi Network
@@ -220,16 +220,16 @@ Make sure the DNS service is up and running as we are going to assign it to our 
    CGroup: /system.slice/named-chroot.service
            └─1092 /usr/sbin/named -u named -c /etc/named.conf -t /var/named/chroot
 
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './NS/IN': 192.203.230.10#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './DNSKEY/IN': 192.112.36.4#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './NS/IN': 192.112.36.4#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './DNSKEY/IN': 192.36.148.17#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './NS/IN': 192.36.148.17#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './DNSKEY/IN': 192.58.128.30#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: network unreachable resolving './NS/IN': 192.58.128.30#53
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: managed-keys-zone: Unable to fetch DNSKEY set '.': failure
-Nov 27 16:55:42 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: resolver priming query complete
-Nov 27 16:55:52 bastion.ocp67.i8c-lab-02.iconos.be named[1092]: listening on IPv4 interface ens192, 192.168.67.1#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './NS/IN': 192.203.230.10#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './DNSKEY/IN': 192.112.36.4#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './NS/IN': 192.112.36.4#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './DNSKEY/IN': 192.36.148.17#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './NS/IN': 192.36.148.17#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './DNSKEY/IN': 192.58.128.30#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: network unreachable resolving './NS/IN': 192.58.128.30#53
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: managed-keys-zone: Unable to fetch DNSKEY set '.': failure
+Nov 27 16:55:42 bastion.ocp67.perceptionit.int named[1092]: resolver priming query complete
+Nov 27 16:55:52 bastion.ocp67.perceptionit.int named[1092]: listening on IPv4 interface ens192, 192.168.67.1#53
 ```
   
 #### Assign static address to NIC in external zone
@@ -313,7 +313,7 @@ openshift-install wait-for bootstrap-complete --log-level debug
 # You should get output similar to this after waiting for a while
 DEBUG OpenShift Installer v4.2.8
 DEBUG Built from commit 425e4ff0037487e32571258640b39f56d5ee5572
-INFO Waiting up to 30m0s for the Kubernetes API at https://api.ocp67.i8c-lab-02.iconos.be:6443...
+INFO Waiting up to 30m0s for the Kubernetes API at https://api.ocp67.perceptionit.int:6443...
 INFO API v1.14.6+dea7fb9 up
 INFO Waiting up to 30m0s for bootstrapping to complete...
 DEBUG Bootstrap status: complete
