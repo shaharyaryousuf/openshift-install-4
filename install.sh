@@ -3,9 +3,9 @@
 #
 # Execute this script as root
 # DNS installation
-echo 'installing bind-chroot DNS server...'
-dnf install -y wget
-echo 'wget installed!'
+echo 'installing useful applications...'
+dnf install -y wget zip unzip 
+echo 'applications installed!'
 echo 'installing bind-chroot DNS server...'
 dnf install -y bind-chroot
 echo 'bind-chroot DNS server installed!'
@@ -96,6 +96,6 @@ unzip terraform_0.12.26_linux_amd64.zip
 mv terraform /usr/local/bin
 echo 'terraform installed'
 # installing and configuring go
-bash ./bastion/source/go-install.sh
+bastion/source/go-install.sh
 #echo 'go installed and configured'
 dnf -y install libnsl
