@@ -4,7 +4,7 @@ This project documents how you can setup a complete Red Hat OpenShift 4.2 cluste
 The configuration files and scripts used for the installation are also maintained by this project.  
   
 # Context and History
-This project was created because we wanted to install Red Hat OpenShift on an existing lab machine that was running an end of support Windows Server 2008 O.S. and was no longer being used.  
+This project was created because we wanted to install Red Hat OpenShift on an existing lab machine 
 At the time of writing, the OpenShift installation was only supported out of the box on:
 - AWS
 - Azure
@@ -34,15 +34,10 @@ A quick search on the internet quickly returned a number of resources that provi
 - [OpenShift Documentation: Installing a cluster on bare metal](https://docs.openshift.com/container-platform/4.2/installing/installing_bare_metal/installing-bare-metal.html)  
   
 # Pre-requisites
-## Bare metal specs
-The machine we used to perform the installation is a Dell PowerEdge R715 rackserver, with the following specs:
-- 64GB Memory, DDR3, 1333MHz (16x4GB Dual Ranked RDIMMs)
-- 2x AMD Opteron 6128, 8 Cores, 2.00GHz, 8x512K L2 Cache, 115W TDP
-- 4 x 500GB, SATA, 2.5-in, 7.2K RPM Hard Drive (Hot Plug)
-- Two Dual Port Embedded Broadcom NetXtreme II 5709 Gigabit Ethernet NIC with TOE & iSCSI
+
   
 ## VMWare ESXi
-The installation was tested on VMware ESXi 6.5.0 (Dell-ESXi-6.5.0-4564106-A00 (Dell))  
+The installation was tested on VMware ESXi 6.5.0
   
 # Solution Overview
 The conceptual architecture of our single machine OpenShift cluster is depicted below:
@@ -54,21 +49,21 @@ The following table summarizes the VMs that we use to deploy OpenShift:
   
 | VM name | Hostname | Role | CPU | RAM | Storage | IP Address |  
 | --- | ---  | --- | --- | --- | --- | --- |  
-| ocp67-bastion | bastion  | bastion | 1 | 2 | 20GB | 192.168.67.1 |  
- ocp67-bootstrap | bootstrap  | OpenShift Bootstrap | 2 | 2 | 40GB | 192.168.67.253 |  
-| ocp67-master-0 | master-0  | OpenShift Control Plane | 2 | 8 | 40GB | 192.168.67.10 |  
-| ocp67-master-1 | master-1  | OpenShift Control Plane | 2 | 8 | 40GB | 192.168.67.11 |  
-| ocp67-master-2 | master-2  | OpenShift Control Plane | 2 | 8 | 40GB | 192.168.67.12 |  
+| ocp67-bastion | bastion  | bastion | 1 | 2 | 40GB | 192.168.67.1 |  
+ ocp67-bootstrap | bootstrap  | OpenShift Bootstrap | 4 | 5 | 200GB | 192.168.67.253 |  
+| ocp67-master-0 | master-0  | OpenShift Control Plane | 4 | 16 | 400GB | 192.168.67.10 |  
+| ocp67-master-1 | master-1  | OpenShift Control Plane | 4 | 16 | 400GB | 192.168.67.11 |  
+| ocp67-master-2 | master-2  | OpenShift Control Plane | 4 | 16 | 400GB | 192.168.67.12 |  
 | ocp67-cptnod-0 | cptnod-0  | OpenShift Compute Node | 8 | 16 | 80GB | 192.168.67.30 |  
 | ocp67-cptnod-1 | cptnod-1  | OpenShift Compute Node | 8 | 16 | 80GB | 192.168.67.31 |  
   
 The bastion server is a CentOS 8 VM.  
-- Hostname: bastion.ocp67.i8c-lab-02.iconos.be
+- Hostname: bastion.ocp67.perceptionit.int
 - IP address: 192.168.67.1
 - Netmask: 255.255.255.0
 - Gateway: 192.168.67.1
 - DNS server: 192.168.67.1
-- DNS domain: ocp67.i8c-lab-02.iconos.be  
+- DNS domain: ocp67.perceptionit.int  
   
 It hosts the DNS server, DHCP server and load balancer for a 192.168.67.0 subnet that will be created with the Virtual Switch _vSwitchocp67_. It also hosts the TFTP and Matchbox servers to provision the OpenShift VMs. It also serves as gateway and router to the internet for the 192.168.67.0 subnet.  
   
@@ -205,9 +200,9 @@ Install git, clone this project in the home folder of the root user and execute 
 ```bash
 dnf install -y git
 cd ~
-git clone https://gitlab.com/i8c/ibm/redhat/installing-openshift-on-single-vmware-esxi-host.git
-cd installing-openshift-on-single-vmware-esxi-host
-./installBastion.sh
+git clone https://github.com/shaharyaryousuf/openshift-install-4.git
+cd openshift-install-4
+./install.sh
 ```
   
 The haproxy service will fail to start as it is not yet resolving against the DNS on our bastion router.  
@@ -245,8 +240,8 @@ nmcli
 # Look for the one connected to the VMware ESXi vSwitch "vSwitchocp67" = ens224 below
 # Create a new static connection and activate it
 nmcli con add type ethernet con-name external-static ifname ens224
-nmcli con modify external-static ipv4.addresses 10.0.13.160/16
-nmcli con modify external-static ipv4.gateway 10.0.10.2
+nmcli con modify external-static ipv4.addresses 192.168.1.30/16
+nmcli con modify external-static ipv4.gateway 192.168.1.1
 nmcli con modify external-static ipv6.method ignore
 nmcli con modify external-static ipv4.dns 127.0.0.1
 nmcli con modify external-static ipv4.method manual
@@ -260,7 +255,15 @@ firewall-cmd --get-active-zones
 ```
   
 You can also keep the automatically assigned IP address via DHCP, but make sure you change DNS server so that is points to the DNS server on the bastion server. You also risk that the bastion server receives another IP address when it would be restarted, which is not desirable for a server.  
-  
+#### Verify and Update DHCP ,named-dns and haproxy if you have changed the internal-ip or hostnames
+Files are:
+```sh
+/etc/dhcp/dhcpd.conf
+/etc/haproxy/haproxy.cfg
+/etc/named.conf
+/var/named/67.168.192.in-addr.arpa.zone 
+/var/named/ocp67.perceptionit.int.zone 
+```
 #### Verify configuration
 Reboot the bastion machine and verify that the services created by the [installBastion.sh](installBastion.sh) script are started successfully.  
   
@@ -285,47 +288,24 @@ Edit the file `/root/ocp67/install-config.yaml`:
 ### Openshift installation
 Prepare the installation files on the bastion machine:
 ```sh
-cd /root/ocp67
-openshift-install create ignition-configs
-openshift-install create manifests
-```  
-  
-Open the manifests/cluster-scheduler-02-config.yml file. Locate the mastersSchedulable parameter and set its value to false. Then continue the installation:  
-  
+cd ~/openshift-install-4/prepare.sh
+``` 
+
+### Terraform
+Pre Requisites:
 ```sh
-openshift-install create ignition-configs
-cp *.ign /var/lib/matchbox/ignition
+Requires terraform and this terraform provider: https://github.com/josenk/terraform-provider-esxi
+We have already configured this Terraform Provider in base instalation file
 ```
-
-### Create the bootstrap, master and compute node VMs
-Use the VMware ESXi web console to manually create the bootstrap, master and compute node VMs.  
-The naming convention for the VMs = ocp67-<dns name in /var/named/ocp67.i8c-lab-02.iconos.be.zone> (see also table above)
-  
-1)  Select creation type  
-    
-    ![Select creation type](./doc/images/bootstrapselectcreationtype.png)  
-    
-2)  Select a name and guest O.S. (select CoreOS as Guest O.S.)  
-    
-    ![Select a name and guest O.S.](./doc/images/bootstrapselectnameguestos.png)  
-    
-3)  Select storage  
-    
-    ![Select storage](./doc/images/bootstrapselectstorage.png)  
-    
-4)  Customize settings:  
-    - the default NIC should be connected to the Port Group ocp67 created earlier on the VMware host!  
-    - make sure you set the MAC address manually to the value in [/etc/dhcp/dhcpd.conf](bastion/etc/dhcp/dhcpd.conf)!  
-    - CPU, memory and storage are defined in the table in the Solution overview section  
-    
-    ![Customize settings](./doc/images/bootstrapcustomizesettings.png)  
-    
-5)  Finish the wizard and start the VM.  
-    
-
-Repeat these steps for the 3 master nodes and 2 compute nodes defined in the VM summary table above.
-  
-
+Configuration:
+```sh
+Configure main.tf and variable.tf from /openshift-intall-4/terraform/openshift-cluster as per your ESXi environment your configured earlier services(Example:IPs,hostname,ESXI Credentials)
+```
+Installation:
+```sh
+cd /openshift-intall-4/terraform/openshift-cluster
+deploy.sh
+```
 ### Wait for the installation to complete
 Execute the following command to check if the installation has completed:  
 ```sh
@@ -364,11 +344,11 @@ oc get clusteroperator image-registry
 ## hosts file
 Edit your local hosts file (on windows = C:\Windows\System32\drivers\etc\hosts) to make the OpenShift environment accessible from your laptop. Add the following entry:  
 ```sh  
-<ip address of the external connection on the bastion VM> console-openshift-console.apps.ocp67.i8c-lab-02.iconos.be oauth-openshift.apps.ocp67.i8c-lab-02.iconos.be grafana-openshift-monitoring.apps.ocp67.i8c-lab-02.iconos.be
+<ip address of the external connection on the bastion VM> console-openshift-console.apps.ocp67.perceptionit.int oauth-openshift.apps.ocp67.perceptionit.int grafana-openshift-monitoring.apps.ocp67.perceptionit.int
 ```
   
 ## Open the OpenShift web console
-The OpenShift Web Console is accessible at https://console-openshift-console.apps.ocp67.i8c-lab-02.iconos.be  
+The OpenShift Web Console is accessible at https://console-openshift-console.apps.ocp67.perceptionit.int  
 Login with the user `kubeadmin`. The password can be found on the bastion server in the file  `/root/ocp67/auth/kubeadmin-password`.
 
 For more details check https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html-single/web_console/index
@@ -389,7 +369,7 @@ systemctl status haproxy
 
 Login to cluster node CoreOS machines:  
 ```sh
-ssh -i .ssh/id_rsa core@bootstrap.ocp67.i8c-lab-02.iconos.be
+ssh -i .ssh/id_rsa core@bootstrap.ocp67.perceptionit.int
 ```
   
 From the cluster node cli:
@@ -408,4 +388,5 @@ Check the following useful resources for tips on how to troubhleshoot the instal
 - https://github.com/openshift/installer/blob/master/docs/user/troubleshooting.md
 - Use tcpdump to check communication between bastion and nodes: https://www.tcpdump.org/manpages/tcpdump.1.html
 - Debugging Kubernetes nodes with crictl: https://kubernetes.io/docs/tasks/debug-application-cluster/crictl/
-
+## Speacial Thanks to :(At first I used this Article to perform Installation without Terraform)
+- https://github.com/I8C/installing-openshift-on-single-vmware-esxi-host
