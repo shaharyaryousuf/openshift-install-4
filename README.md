@@ -1,5 +1,5 @@
 # Introduction
-This project documents how you can setup a complete Red Hat OpenShift 4.2 cluster on a single VMware ESXi host machine.  
+This project documents how you can setup a complete Red Hat OpenShift 4.2 cluster on a single VMware ESXi host machine with Terrraform.  
   
 The configuration files and scripts used for the installation are also maintained by this project.  
   
