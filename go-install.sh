@@ -13,4 +13,5 @@ go get -u -v github.com/hashicorp/terraform
 go get -u -v github.com/josenk/terraform-provider-esxi
 cd $GOPATH/src/github.com/josenk/terraform-provider-esxi
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o terraform-provider-esxi_`cat version`
+cp terraform-provider-esxi_`cat version` /usr/local/bin
 echo 'go installed and configured'
