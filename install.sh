@@ -96,6 +96,6 @@ unzip terraform_0.12.26_linux_amd64.zip
 mv terraform /usr/local/bin
 echo 'terraform installed'
 # installing and configuring go
-bastion/source/go-install.sh
+go-install.sh
 #echo 'go installed and configured'
 dnf -y install libnsl
