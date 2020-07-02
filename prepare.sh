@@ -1,4 +1,4 @@
-d /root/ocp67
+cd /root/ocp67
 openshift-install create ignition-configs
 openshift-install create manifests
 sed -i '' 's/mastersSchedulable: true/mastersSchedulable: false/'  manifests/cluster-scheduler-02-config.yml
